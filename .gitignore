@@ -1,0 +1,15 @@
+# Obsidian workspace state (기기마다 다름 — 커밋 불필요)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json
+
+# 플러그인 개인 설정 (토큰, 경로 등 민감 정보 포함 가능)
+.obsidian/plugins/obsidian-git/data.json
+
+# Obsidian 휴지통
+.trash/
+
+# OS 파일
+.DS_Store
+Thumbs.db
+desktop.ini
