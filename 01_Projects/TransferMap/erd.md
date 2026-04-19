@@ -1,7 +1,7 @@
 ---
 tags: [transfermap, design, db]
 type: design
-updated: 2026-04-14
+updated: 2026-04-16
 ---
 
 # E-R Diagram
@@ -49,6 +49,8 @@ erDiagram
         BIGINT      fee_eur             "이적료 (유로, null = 불명)"
         VARCHAR     status              "RUMOR | CONFIRMED | DENIED | LOAN"
         TINYINT     reliability         "1~5 : 기사 자체 신뢰도 레이블"
+        SMALLINT    season              "시즌 인코딩: 앞두자리+뒷두자리 (예: 24/25 → 49)"
+        VARCHAR     transfer_window     "이적 윈도우: SUMMER | WINTER (예약어 회피)"
         TIMESTAMP   published_at
     }
 
@@ -68,6 +70,9 @@ erDiagram
         FLOAT       accuracy_score      "검증된 뉴스 / 전체 뉴스 비율"
         FLOAT       impact_score        "RT·조회수·팔로워 기반 파급력"
         DATE        measured_date       "지표 산출 기준일 (월별 스냅샷)"
+        SMALLINT    season              "시즌 인코딩: 앞두자리+뒷두자리 (예: 24/25 → 49)"
+        VARCHAR     transfer_window     "이적 윈도우: SUMMER | WINTER (예약어 회피)"
+        INT         rank                "해당 시즌+윈도우 기준 공신력 순위"
         TIMESTAMP   created_at
     }
 
@@ -130,4 +135,7 @@ erDiagram
 | 파급력 점수 | `(retweet_count × 3 + like_count + view_count × 0.1) / follower_count` 정규화 |
 | 지도 UI | `CLUB.latitude` / `CLUB.longitude` 기준으로 유럽 지도 마커 렌더링, `to_club_id` 기준 이동 경로 시각화 |
 | 자유계약 이적 | `TRANSFER_NEWS.from_club_id = NULL`, `fee_eur = 0` |
+| 시즌 인코딩 | `season = 앞두자리 + 뒷두자리` — 24/25 → 49, 25/26 → 51. 2씩 증가하는 홀수 패턴으로 고유값 보장. 현재 시즌 조회 시 `WHERE season = 49` |
+| 이적 윈도우 | `SUMMER`: 6~9월 (시즌 시작 전 여름), `WINTER`: 1~2월 (시즌 중반 겨울). 동일 시즌(49)에 두 윈도우가 모두 존재. `published_at` 월 기준으로 자동 분류 가능 |
+| 시즌별 기자 랭킹 | `CREDIBILITY_METRIC.rank` — 특정 `season + window` 조합 기준 순위. `JOURNALIST.rank`는 가장 최근 스냅샷 캐시값 |
 ```

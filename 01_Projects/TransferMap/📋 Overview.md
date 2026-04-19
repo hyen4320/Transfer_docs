@@ -44,15 +44,38 @@ React + D3.js (유럽 지도)
 
 ## 진행 현황
 
-| 영역 | 상태 |
-|------|------|
-| BE - Domain / Repository | ✅ 완료 |
-| BE - Service 비즈니스 로직 | 🔲 미구현 |
-| BE - REST Controller | 🔲 미작성 |
-| BE - X API 수집 파이프라인 | 🔲 미구현 |
-| DB - Docker 환경 + 시딩 | 🔲 미완 |
-| FE - React 앱 | 🔲 없음 |
-| Infra - Docker / 배포 | 🔲 없음 |
+### Backend
+
+| 영역 | 상태 | 비고 |
+|------|------|------|
+| Domain / Entity | ✅ 완료 | Post, Journalist, Club, Player, League, TransferNews, CredibilityMetric, Verification |
+| Repository | ✅ 완료 | 전 엔티티 Spring Data JPA Repository 구현 |
+| Service — 공신력 계산 | ✅ 완료 | speed × 0.3 + accuracy × 0.5 + impact × 0.2 |
+| Service — 이적 뉴스 / 기자 / 선수 | ✅ 완료 | TransferNewsServiceImpl, JournalistServiceImpl 등 |
+| REST Controller | ✅ 완료 | News / Club / Journalist / Player / League + GlobalExceptionHandler |
+| X API 수집 스케줄러 | 🟡 부분 완료 | 15분 주기 수집 + Redis rate-limit ✅ / POST→TransferNews 파싱 🔲 |
+| CORS 설정 | ✅ 완료 | localhost:5173 허용 |
+
+### Frontend
+
+| 영역 | 상태 | 비고 |
+|------|------|------|
+| 유럽 지도 (WorldMap) | ✅ 완료 | D3 geoMercator, 구단 마커 겹침 해소(resolveOverlaps) |
+| 사이드 패널 (SidePanel) | ✅ 완료 | 뉴스 피드 / 구단 상세 + 이적 탭 |
+| 국가 리그 지도 (CountryMapPage) | ✅ 완료 | 구단 마커 클릭 → 사이드 패널 연동 |
+| 기자 목록 / 상세 페이지 | ✅ 완료 | 공신력 점수 표시 |
+| 선수 상세 페이지 | ✅ 완료 | 이적 히스토리 |
+| 에러 페이지 (404 / 500) | ✅ 완료 | ErrorBoundary 포함 |
+| BE↔FE 데이터 연동 | ✅ 완료 | apiFetch + mapper 레이어 (status/fee/time 변환) |
+
+### Infra / DB
+
+| 영역                          | 상태    | 비고                              |
+| --------------------------- | ----- | ------------------------------- |
+| Docker — PostgreSQL + Redis | ✅ 완료  | docker-compose.yml (PostGIS 16) |
+| DB 시딩                       | 🔲 미완 | 시드 스크립트 없음, 수동 입력 상태            |
+| 앱 배포 Docker 설정              | 🔲 미완 | BE / FE Dockerfile 미작성          |
+| 운영 배포                       | 🔲 미완 |                                 |
 
 ---
 

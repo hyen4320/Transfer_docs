@@ -1,6 +1,7 @@
 ---
 tags: [transfer, backend, api, rest]
 created: 2026-04-15
+updated: 2026-04-19
 ---
 
 # API 목록
@@ -12,16 +13,31 @@ Base URL: `http://localhost:8080`
 ## 뉴스 (News)
 
 ### `GET /api/news`
-이적 뉴스 피드 (최신순, 페이지네이션)
+이적 뉴스 복합 조건 검색 (최신순, 페이지네이션)
 
 **Query Parameters**
 
 | 파라미터 | 타입 | 필수 | 설명 |
 |---------|------|------|------|
-| `status` | `String` | N | 상태 필터 (`RUMOUR` / `CONFIRMED` / `DENIED`) |
-| `leagueId` | `Long` | N | 리그 ID 필터 |
+| `status` | `String` | N | 상태 필터 (`INTEREST` / `RUMOR` / `CONFIRMED` / `DENIED` / `LOAN` / `CONTRACT_EXTENSION`) |
+| `season` | `Short` | N | 시즌 인코딩 (`49` = 24/25, `51` = 25/26) |
+| `window` | `String` | N | 이적 윈도우 (`SUMMER` / `WINTER`) |
+| `leagueId` | `Long` | N | 리그 ID 필터 (toClub 기준) |
+| `journalistId` | `Long` | N | 기자 ID 필터 |
+| `position` | `String` | N | 선수 포지션 (`GK` / `DF` / `MF` / `FW`) |
+| `nationality` | `String` | N | 선수 국적 |
+| `minFeeEur` | `Long` | N | 이적료 하한 (유로) |
+| `maxFeeEur` | `Long` | N | 이적료 상한 (유로) |
+| `from` | `LocalDate` | N | 보도일 시작 (`yyyy-MM-dd`) |
+| `to` | `LocalDate` | N | 보도일 종료 (`yyyy-MM-dd`) |
+| `toClubId` | `Long` | N | 영입 구단 ID |
+| `fromClubId` | `Long` | N | 방출 구단 ID |
+| `minReliability` | `Byte` | N | 뉴스 신뢰도 하한 (1~5) |
+| `minCredibility` | `Float` | N | 기자 공신력 점수 하한 |
+| `verified` | `Boolean` | N | `true` 시 검증된 뉴스만 |
 | `page` | `int` | N | 페이지 번호 (기본값 0) |
 | `size` | `int` | N | 페이지 크기 (기본값 20) |
+| `sort` | `String` | N | 정렬 기준 (예: `feeEur,desc`) |
 
 **Response** `Page<TransferNewsResponse>`
 
@@ -115,6 +131,34 @@ Base URL: `http://localhost:8080`
 
 ## 선수 (Player)
 
+### `GET /api/players/expiring`
+계약 만료 임박 선수 목록 (contractUntil 오름차순)
+
+**Query Parameters**
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---------|------|------|------|
+| `months` | `int` | N | 만료 기준 기간 (기본값 6) |
+
+**Response** `List<PlayerResponse>`
+
+```json
+[
+  {
+    "id": 7,
+    "name": "Bukayo Saka",
+    "nationality": "English",
+    "position": "FW",
+    "currentClubName": "Arsenal",
+    "contractUntil": "2026-06-30",
+    "contractStatus": "CONTRACTED",
+    "profileImageUrl": "https://..."
+  }
+]
+```
+
+---
+
 ### `GET /api/players/{id}`
 선수 상세 정보
 
@@ -131,9 +175,10 @@ Base URL: `http://localhost:8080`
   "id": 1,
   "name": "Kylian Mbappé",
   "nationality": "France",
-  "position": "FORWARD",
+  "position": "FW",
   "currentClubName": "Real Madrid",
   "contractUntil": "2029-06-30",
+  "contractStatus": "CONTRACTED",
   "profileImageUrl": "https://..."
 }
 ```
@@ -267,7 +312,7 @@ Base URL: `http://localhost:8080`
 | `fromClubName` | `String?` | 출발 구단 (null 가능) |
 | `toClubName` | `String` | 도착 구단 |
 | `feeEur` | `Long?` | 이적료 (유로) |
-| `status` | `String` | `RUMOUR` / `CONFIRMED` / `DENIED` |
+| `status` | `String` | `INTEREST` / `RUMOR` / `CONFIRMED` / `DENIED` / `LOAN` / `CONTRACT_EXTENSION` |
 | `reliability` | `Byte` | 신뢰도 (0–100) |
 | `publishedAt` | `LocalDateTime` | 최초 보도 시각 |
 | `journalistXHandle` | `String` | 기자 X 핸들 |
@@ -292,9 +337,10 @@ Base URL: `http://localhost:8080`
 | `id` | `Long` | 선수 ID |
 | `name` | `String` | 이름 |
 | `nationality` | `String` | 국적 |
-| `position` | `String?` | 포지션 enum |
+| `position` | `String?` | 포지션 (`GK` / `DF` / `MF` / `FW`) |
 | `currentClubName` | `String?` | 현재 소속팀 |
 | `contractUntil` | `String?` | 계약 만료일 |
+| `contractStatus` | `String?` | 계약 상태 (`FREE_AGENT` / `CONTRACTED` / `LOANED`) |
 | `profileImageUrl` | `String` | 프로필 이미지 |
 
 ### `ClubResponse`
