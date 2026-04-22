@@ -1,0 +1,1 @@
+gabia에서 산 후 cloudflare로 네임서버를 변경 글로벌 cdn, 무료ssl/tls ddos완화, dns관리, 무제한 대역폭 혜택을 취하긴
