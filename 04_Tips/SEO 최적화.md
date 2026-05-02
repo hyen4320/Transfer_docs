@@ -46,3 +46,44 @@
 - **[SSL/TLS] > [개요]** 메뉴에서 모드를 **전체(Full)** 또는 **전체(엄격)(Full - Strict)**로 설정하세요.
     
 - **[SSL/TLS] > [Edge Certificates]** 메뉴에서 **항상 HTTPS 사용(Always Use HTTPS)** 기능을 켜두면, 사용자가 `http`로 들어와도 자동으로 보안 접속(`https`)으로 전환됩니다.
+
+---
+
+### Canonical URL
+
+`<link rel="canonical" href="https://example.com/실제-URL">` 태그로, 구글에게 "이게 진짜 URL"임을 알려주는 힌트.
+
+**필요한 이유:**
+같은 컨텐츠가 여러 URL로 접근 가능할 때(예: `/players/123`과 `/players/123?season=49`), 구글이 중복 컨텐츠로 판단해 랭킹 점수가 분산됨. Canonical을 달면 점수가 하나의 URL에 집중됨.
+
+**실익이 있는 경우:**
+- 쿼리파라미터가 URL에 반영되는 페이지 (`?sort=`, `?season=` 등)
+- 같은 컨텐츠를 여러 경로로 서빙하는 경우
+
+**실익이 낮은 경우 (=지금 TransferMap):**
+URL 구조가 이미 깔끔하고(`/players/:id`), 쿼리파라미터가 URL에 반영되지 않으면 중복 URL 자체가 생기지 않음. sitemap.xml이 있으면 더더욱 우선순위 낮음.
+
+**React SPA 적용법 (라이브러리 없이):**
+
+```typescript
+// src/hooks/useCanonical.ts
+import { useEffect } from 'react';
+
+const BASE = 'https://transfermap.io';
+
+export function useCanonical(path?: string) {
+  useEffect(() => {
+    const href = BASE + (path ?? window.location.pathname);
+    let link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'canonical';
+      document.head.appendChild(link);
+    }
+    link.href = href;
+    return () => { link!.href = ''; };
+  }, [path]);
+}
+```
+
+각 페이지에서 `useCanonical('/players/' + id)` 한 줄로 사용.
